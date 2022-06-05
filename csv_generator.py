@@ -2,7 +2,7 @@
 from pathlib import Path
 import re
 import numpy as np 
-data_root = "/home/eric/few-shot-object-detection/checkpoints/coco/faster_rcnn/set1/split2/"
+data_root = "/home/eric/few-shot-object-detection/checkpoints/coco/faster_rcnn/set1/split1/"
 
 pathlist = Path(data_root).glob('**/*.txt')
 

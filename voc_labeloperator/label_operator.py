@@ -532,19 +532,19 @@ class label_operator():
         
 if __name__ == '__main__':
     
-    #im_path = "/home/eric/mmdetection/data/VOCdevkit/datasets/VOC2007/JPEGImages/" #full image
-    im_path = "/home/eric/mmdetection/data/VOCdevkit/datasets/set1/comparison/trainval/" #global training set
+    im_path = "/home/eric/mmdetection/data/VOCdevkit/datasets/VOC2007/JPEGImages/" #full image
+    #im_path = "/home/eric/mmdetection/data/VOCdevkit/datasets/set1/comparison/trainval/" #global training set
     #im_path = "/home/eric/mmdetection/data/VOCdevkit/datasets/set1/set1_comparison/test/" #global testing set
     anno_path = "/home/eric/mmdetection/data/VOCdevkit/datasets/VOC2007/Annotations/"
     testfile = "/home/eric/mmdetection/data/VOCdevkit/datasets/VOC2007/ImageSets/Main/test.txt"
     trainfile = "/home/eric/mmdetection/data/VOCdevkit/datasets/VOC2007/ImageSets/Main/trainval.txt"
     #trainvaltestfile = "/home/eric/mmdetection/data/VOCdevkit/datasets/VOC2007/ImageSets/Main/trainvaltesst.txt"
 
-    classes = ['brownblight', 'blister', 'algal',  'fungi_early',
-                  'miner',   'thrips',
-                  'mosquito_early', 'mosquito_late',
-                  'moth', 'tortrix',   'flushworm',
-                  'roller','formosa', 'caloptilia', 'tetrany', 'sunburn', 'other']
+    classes = ['brownblight', 'algal', 'blister', 'sunburn', 'fungi_early', 'roller',
+            'moth', 'tortrix', 'flushworm', 'caloptilia', 'mosquito_early', 'mosquito_late',
+            'miner', 'thrips', 'tetrany', 'formosa', 'other']
+
+    
                   
     lab = label_operator(True, im_path, anno_path)
 
@@ -561,7 +561,8 @@ if __name__ == '__main__':
     test_count,_ = lab.calculate_images(testlis)
 
     lab.print_count([label_count, img_count, train_count, test_count], classes=classes, ratio=False)
-
+    lab.write_count_csv("/home/eric/eric_DL_toolkit/count.csv", [label_count, img_count, train_count, test_count], classes=classes,
+                        header= ['label', 'label_count', 'img_count', 'train_count', 'test_count'])
     #lab.print_count([label_count, img_count])
    
     

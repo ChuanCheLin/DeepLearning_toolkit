@@ -4,6 +4,11 @@ import numpy as np
 import joblib
 import seaborn as sns
 
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument('-s', '--scatter', action='store_true', help='draw the scatter plot instead of the default kde plot')
+args = parser.parse_args()        
+
 label_path = "/home/eric/few-shot-object-detection/labels.npy"
 labels = np.load(label_path)
 
@@ -41,10 +46,11 @@ for i in chosen:
         if labels[j] == i:
             x.append(X_norm[j, 0])
             y.append(X_norm[j, 1])
-
-    #sns.kdeplot(x, y, color = color, label = table[i], levels=15)
-    plt.scatter(x, y, color = color, label = table[i])
-
+    
+    if args.scatter:
+        plt.scatter(x, y, color = color, label = table[i])
+    else:
+        sns.kdeplot(x, y, color = color, label = table[i], levels=15)
 '''
 for i in range(X_norm.shape[0]):
     #set color

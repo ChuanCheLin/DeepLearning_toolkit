@@ -97,7 +97,7 @@ class json_handler():
 if __name__ == "__main__":  
     a = json_handler(
         jpg_data_root= "/home/eric/mmdetection/data/VOCdevkit/datasets/VOC2007/JPEGImages/",
-        coco_data_root = "/home/eric/mmdetection/data/VOCdevkit/datasets/set1/split2/base/", subset = 'trainvaltest')
+        coco_data_root = "/home/eric/mmdetection/data/VOCdevkit/datasets/set1/split1/base/", subset = 'trainvaltest')
 
 
     a.write_jpg_txt()
