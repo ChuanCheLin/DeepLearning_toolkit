@@ -9,7 +9,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-s', '--scatter', action='store_true', help='draw the scatter plot instead of the default kde plot')
 args = parser.parse_args()        
 
-label_path = "/home/eric/few-shot-object-detection/labels.npy"
+path_root = "/home/eric/FSCE_tea-diseases/"
+label_path = path_root + "labels.npy"
 labels = np.load(label_path)
 
 table = ['brownblight', 'algal', 'blister', 'sunburn', 'fungi_early', 'roller', 'moth', 
@@ -24,6 +25,8 @@ table = ['brownblight', 'algal', 'blister', 'sunburn', 'fungi_early', 'roller', 
 chosen = [7, 8] # tortrix, flushworm
 # chosen = [3, 14] # sunburn, tetrany
 # chosen = [0, 1, 2, 3, 4, 7, 9, 12] # excellent-perfomance mAP>80
+limit = 20
+
 
 # tsne
 X_tsne = loaded_model = joblib.load('tsne.pkl')
@@ -32,8 +35,9 @@ x_min, x_max = X_tsne.min(0), X_tsne.max(0)
 X_norm = (X_tsne - x_min) / (x_max - x_min)  #Normalize
 plt.figure(figsize=(10, 10))
 
-#for i in range(len(table)):
-for i in chosen:
+for i in range(len(table)):
+# for i in chosen:
+    count = 0
     x = []
     y = []
     # set color
@@ -43,9 +47,10 @@ for i in chosen:
             color = plt.cm.Set1(i-10)
 
     for j in range(X_norm.shape[0]):
-        if labels[j] == i:
+        if labels[j] == i and count < limit:
             x.append(X_norm[j, 0])
             y.append(X_norm[j, 1])
+            count += 1
     
     if args.scatter:
         plt.scatter(x, y, color = color, label = table[i])

@@ -1,12 +1,20 @@
 #Author: Eric Lin
+from itertools import count
 import json
+from json.encoder import INFINITY
+from nis import cat
 import os
 import shutil
+from typing import List
 from tqdm import tqdm
+from tabulate import tabulate
 # name2id
-name2id = { 1:'brownblight', 2:'algal', 3: 'blister', 4: 'sunburn', 5: 'fungi_early', 6: 'roller',
-            7: 'moth', 8: 'tortrix', 9: 'flushworm', 10: 'caloptilia', 11: 'mosquito_early', 12: 'mosquito_late',
-            13: 'miner', 14: 'thrips', 15: 'tetrany', 16: 'formosa', 17: 'other'}
+# tea
+# name2id = { 1:'brownblight', 2:'algal', 3: 'blister', 4: 'sunburn', 5: 'fungi_early', 6: 'roller',
+#             7: 'moth', 8: 'tortrix', 9: 'flushworm', 10: 'caloptilia', 11: 'mosquito_early', 12: 'mosquito_late',
+#             13: 'miner', 14: 'thrips', 15: 'tetrany', 16: 'formosa', 17: 'other', 18: 'nodicornis', 19: 'aleyrodidae', 20: 'termite', 21: 'inchmoth'}
+# # cucumber
+name2id = {1:'health', 2:'virus', 3:'anthracnose', 4:'downy', 5:'corynespora', 6:'powdery', 7:'malnutrition', 8:'leafminer'}
 
 class json_handler():
     def __init__(self, jpg_data_root, coco_data_root, subset):
@@ -17,6 +25,34 @@ class json_handler():
         self.coco_data_root = coco_data_root
         self.subset = subset
 
+    def check_info(self):
+        
+        #open file
+        j = open(self.data_dir)
+        
+        # load info in json
+        all_info = json.load(j)
+        # print((all_info).keys()) # dict_keys(['images', 'type', 'annotations', 'categories'])
+        images = all_info['images']
+        annotations = all_info['annotations']
+        categories = all_info['categories']
+        
+        categories_count = []
+        categorie_names = []
+        for cat in categories:
+            categories_count.append(0)
+            categorie_names.append(cat['name'])
+        
+        for anno in annotations:
+            categories_count[anno['category_id']-1] += 1
+
+        all_data = []
+        for i in range(len(categorie_names)):
+            all_data.append([categorie_names[i], categories_count[i]])
+        
+        headers = ['category', '#instances']
+
+        print(tabulate(all_data, headers, tablefmt="grid"))
 
     #  get jpg list from arbitrary json file & save as a txt file
     def write_jpg_txt(self):
@@ -93,17 +129,97 @@ class json_handler():
             if(images[i].get('id') in image_list):
                 file.write(images[i].get('file_name'))
                 file.write('\n')
-   
+
+    def create_dataset_with_selected_classes(self, selected = list, output_jsonpath = str, type = str, thresh = int):
+        
+        #open file
+        j = open(self.data_dir)
+        
+        # load info in json
+        all_info = json.load(j)
+        # print((all_info).keys()) # dict_keys(['images', 'type', 'annotations', 'categories'])
+
+        output_json_dict = {
+        "images": [],
+        "type": "instances",
+        "annotations": [],
+        "categories": []
+        }
+
+        images = all_info['images']
+        annotations = all_info['annotations']
+        categories = all_info['categories']
+
+        selected_image_set = set()
+        
+        if type == 'few':
+            count = []
+            for ctg in categories:
+                count.append(0)
+        else:
+            thresh = INFINITY
+        
+        for anno in annotations:
+            if anno['category_id'] in selected and count[anno['category_id']-1] < thresh:
+                if anno['image_id'] not in selected_image_set:
+                    selected_image_set.add(anno['image_id'])
+                    count[anno['category_id']-1] += 1
+        print(count)
+
+        for anno in annotations:
+            if anno['image_id'] in selected_image_set:
+                output_json_dict['annotations'].append(anno)
+
+        for img in images:
+            if img['id'] in selected_image_set:
+                output_json_dict['images'].append(img)
+
+        for ctg in categories:
+            # if ctg['id'] in selected:
+            output_json_dict['categories'].append(ctg)
+
+        selected_ctg_name = []
+        for key in selected:
+            selected_ctg_name.append(name2id.get(key))
+
+
+        print(f'selected categories: {selected_ctg_name}')
+        print(f'selected images: {len(selected_image_set)}')
+        print(f'selected annotations: {len(output_json_dict["annotations"])}')
+
+        with open(output_jsonpath, 'w') as f:
+            output_json = json.dumps(output_json_dict)
+            f.write(output_json)
+
+
+        
+
+  
 if __name__ == "__main__":  
-    a = json_handler(
+    tea = json_handler(
         jpg_data_root= "/home/eric/mmdetection/data/VOCdevkit/datasets/VOC2007/JPEGImages/",
-        coco_data_root = "/home/eric/mmdetection/data/VOCdevkit/datasets/set1/split1/base/", subset = 'trainvaltest')
+        coco_data_root = "/home/eric/mmdetection/data/VOCdevkit/datasets/set1/split4/few60", subset = 'test')
+    
+    cucumber = json_handler(
+        jpg_data_root= "/home/eric/mmdetection/data/VOCdevkit/datasets/cucumber/trainval/",
+        coco_data_root = "/home/eric/mmdetection/data/VOCdevkit/datasets/cucumber/", subset = 'trainval')
+    
+    ###
+    set1_base = [1, 2, 3, 4, 6, 7]
+    set1_few = [5, 8]
+    ###
 
+    # cucumber.check_info()
+    cucumber.create_dataset_with_selected_classes(selected=set1_few, 
+    output_jsonpath ="/home/eric/mmdetection/data/VOCdevkit/datasets/cucumber/annotations/split1_few.json",
+    type = 'few', thresh = 60)
 
-    a.write_jpg_txt()
-    a.get_jpg_from_txt()
+    # tea.check_info()
 
-    # a.write_single_class_txt(9)
-    # a.get_jpg_from_txt(single_class=True)
+    # tea.write_jpg_txt()
+    # tea.get_jpg_from_txt()
+
+    # tea.write_single_class_txt(19)
+    # tea.get_jpg_from_txt(single_class=True)
 
 

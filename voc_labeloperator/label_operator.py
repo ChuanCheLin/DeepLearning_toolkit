@@ -542,7 +542,7 @@ if __name__ == '__main__':
 
     classes = ['brownblight', 'algal', 'blister', 'sunburn', 'fungi_early', 'roller',
             'moth', 'tortrix', 'flushworm', 'caloptilia', 'mosquito_early', 'mosquito_late',
-            'miner', 'thrips', 'tetrany', 'formosa', 'other']
+            'miner', 'thrips', 'tetrany', 'formosa', 'nodicornis', 'aleyrodidae', 'termite', 'inchmoth', 'other']
 
     
                   
@@ -590,12 +590,14 @@ if __name__ == '__main__':
 
     split3_few = ['algal', 'moth', 'mosquito_late', 'miner']
 
+    split4_few = ['nodicornis', 'aleyrodidae', 'termite', 'inchmoth']
     #for balanced dataset
     classes_no_other = ['brownblight', 'blister', 'algal',  'fungi_early',
                   'miner',   'thrips',
                   'mosquito_early', 'mosquito_late',
                   'moth', 'tortrix',   'flushworm',
-                  'roller','formosa', 'caloptilia', 'tetrany', 'sunburn']
+                  'roller','formosa', 'caloptilia', 'tetrany', 'sunburn'
+                  , 'nodicornis', 'aleyrodidae',]
 
     import argparse
 
