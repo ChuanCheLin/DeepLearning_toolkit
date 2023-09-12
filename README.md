@@ -1,4 +1,4 @@
-# eric_DL_toolkit
+# DeepLearning_toolkit
 
 Convenient tools for deep learnging projects.
 
